@@ -668,11 +668,32 @@
 		_p('')
 	end
 
-
 	function xcode.PBXProject(tr)
 		_p('/* Begin PBXProject section */')
 		_p(2,'08FB7793FE84155DC02AAC07 /* Project object */ = {')
 		_p(3,'isa = PBXProject;')
+
+		_p(3,'attributes = {')
+		_p(4,'TargetAttributes = {')
+		for _, node in ipairs(tr.products.children) do
+			_p(5,'%s = {', node.targetid)
+
+			local provisioningstyle
+			
+			for _, cfg in ipairs(tr.configs) do
+				if cfg.xcodeprovisioningstyle ~= nil then
+					provisioningstyle = cfg.xcodeprovisioningstyle
+				end
+			end
+			
+			if provisioningstyle ~= nil then
+				_p(6,'ProvisioningStyle = ' .. provisioningstyle .. ';')
+			end
+			_p(5,'};')
+		end
+		_p(4,'};')
+		_p(3,'};')
+
 		_p(3,'buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "%s" */;', tr.name)
 		_p(3,'compatibilityVersion = "Xcode 3.2";')
 		_p(3,'hasScannedForEncodings = 1;')
