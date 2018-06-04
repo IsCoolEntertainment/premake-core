@@ -930,7 +930,9 @@
 			settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
 		end
 
-		if cfg.kind ~= "StaticLib" and cfg.buildtarget.prefix ~= '' then
+		if cfg.kind == "StaticLib" then
+			settings['SKIP_INSTALL'] = "YES"
+		elseif cfg.buildtarget.prefix ~= '' then
 			settings['EXECUTABLE_PREFIX'] = cfg.buildtarget.prefix
 		end
 
