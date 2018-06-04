@@ -679,16 +679,37 @@
 			_p(5,'%s = {', node.targetid)
 
 			local provisioningstyle
+			local capabilities = {}
 			
 			for _, cfg in ipairs(tr.configs) do
 				if cfg.xcodeprovisioningstyle ~= nil then
 					provisioningstyle = cfg.xcodeprovisioningstyle
+				end
+
+				if cfg.xcodesystemcapabilities ~= nil then
+					for _, capability in ipairs(cfg.xcodesystemcapabilities) do
+						if not table.contains(capabilities, capability) then
+							table.insert(capabilities, capability)
+						end
+					end
 				end
 			end
 			
 			if provisioningstyle ~= nil then
 				_p(6,'ProvisioningStyle = ' .. provisioningstyle .. ';')
 			end
+
+			if not table.isempty(capabilities) then
+				_p(6,'SystemCapabilities = {')
+				
+				for _, capability in ipairs(capabilities) do
+					_p(7,'%s = {', capability)
+					_p(8,'enabled = 1;')
+					_p(7,'};')
+				end
+				_p(6,'};')
+			end
+			
 			_p(5,'};')
 		end
 		_p(4,'};')

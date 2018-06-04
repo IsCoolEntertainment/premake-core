@@ -33,6 +33,12 @@
                 }
 	}
 
+	p.api.register {
+		name = "xcodesystemcapabilities",
+		scope = "project",
+		kind = "table"
+	}
+
 --
 -- Register the Xcode exporters.
 --
