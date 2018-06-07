@@ -62,7 +62,7 @@
 				if list then
 					if type(list) == "table" then
 						for _,v in pairs(list) do
-							if string.find(item, v) then
+							if item == v or string.find(item, v, 1, true) then
 								return true
 							end
 						end
@@ -370,8 +370,8 @@
 			onnode = function(node)
 				if node.buildid then
 					settings[node.buildid] = function(level)
-						_p(level,'%s /* %s in %s */ = {isa = PBXBuildFile; fileRef = %s /* %s */; };',
-							node.buildid, node.name, xcode.getbuildcategory(node), node.id, node.name)
+						_p(level,'%s /* %s in %s */ = {isa = PBXBuildFile; fileRef = %s /* %s */; settings = { ATTRIBUTES = (Weak, ); }; };',
+						node.buildid, node.name, xcode.getbuildcategory(node), node.id, node.name)
 					end
 				end
 			end
@@ -668,11 +668,53 @@
 		_p('')
 	end
 
-
 	function xcode.PBXProject(tr)
 		_p('/* Begin PBXProject section */')
 		_p(2,'08FB7793FE84155DC02AAC07 /* Project object */ = {')
 		_p(3,'isa = PBXProject;')
+
+		_p(3,'attributes = {')
+		_p(4,'TargetAttributes = {')
+		for _, node in ipairs(tr.products.children) do
+			_p(5,'%s = {', node.targetid)
+
+			local provisioningstyle
+			local capabilities = {}
+			
+			for _, cfg in ipairs(tr.configs) do
+				if cfg.xcodeprovisioningstyle ~= nil then
+					provisioningstyle = cfg.xcodeprovisioningstyle
+				end
+
+				if cfg.xcodesystemcapabilities ~= nil then
+					for _, capability in ipairs(cfg.xcodesystemcapabilities) do
+						if not table.contains(capabilities, capability) then
+							table.insert(capabilities, capability)
+						end
+					end
+				end
+			end
+			
+			if provisioningstyle ~= nil then
+				_p(6,'ProvisioningStyle = ' .. provisioningstyle .. ';')
+			end
+
+			if not table.isempty(capabilities) then
+				_p(6,'SystemCapabilities = {')
+				
+				for _, capability in ipairs(capabilities) do
+					_p(7,'%s = {', capability)
+					_p(8,'enabled = 1;')
+					_p(7,'};')
+				end
+				_p(6,'};')
+			end
+			
+			_p(5,'};')
+		end
+		_p(4,'};')
+		_p(3,'};')
+
 		_p(3,'buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "%s" */;', tr.name)
 		_p(3,'compatibilityVersion = "Xcode 3.2";')
 		_p(3,'hasScannedForEncodings = 1;')
@@ -888,7 +930,9 @@
 			settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
 		end
 
-		if cfg.kind ~= "StaticLib" and cfg.buildtarget.prefix ~= '' then
+		if cfg.kind == "StaticLib" then
+			settings['SKIP_INSTALL'] = "YES"
+		elseif cfg.buildtarget.prefix ~= '' then
 			settings['EXECUTABLE_PREFIX'] = cfg.buildtarget.prefix
 		end
 

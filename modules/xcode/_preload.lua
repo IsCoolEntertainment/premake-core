@@ -23,6 +23,21 @@
 		kind = "list",
 	}
 
+	p.api.register {
+		name = "xcodeprovisioningstyle",
+		scope = "project",
+		kind = "string",
+                allowed = {
+                   "Manual",
+                   "Automatic"
+                }
+	}
+
+	p.api.register {
+		name = "xcodesystemcapabilities",
+		scope = "project",
+		kind = "table"
+	}
 
 --
 -- Register the Xcode exporters.
