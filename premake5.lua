@@ -120,8 +120,6 @@
 			flags       { "NoIncrementalLink", "LinkTimeOptimization" }
 
 		filter { "system:macosx", "action:gmake" }
-			buildoptions { "-mmacosx-version-min=10.4" }
-			linkoptions  { "-mmacosx-version-min=10.4" }
 
 	project "Premake5"
 		targetname  "premake5"

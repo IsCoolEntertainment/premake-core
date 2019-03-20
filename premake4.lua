@@ -71,9 +71,6 @@
 
 		configuration { "macosx", "gmake" }
 			-- toolset "clang"  (not until a 5.0 binary is available)
-			buildoptions { "-mmacosx-version-min=10.4" }
-			linkoptions  { "-mmacosx-version-min=10.4" }
-
 		configuration { "solaris" }
 			linkoptions { "-Wl,--export-dynamic" }
 
