@@ -29,6 +29,7 @@
 			[".cc"] = "Sources",
 			[".cpp"] = "Sources",
 			[".cxx"] = "Sources",
+			[".c++"] = "Sources",
 			[".dylib"] = "Frameworks",
 			[".framework"] = "Frameworks",
 			[".m"] = "Sources",
@@ -40,6 +41,7 @@
 			[".icns"] = "Resources",
 			[".s"] = "Sources",
 			[".S"] = "Sources",
+			[".swift"] = "Sources",
 		}
 		if node.isResource then
 			return "Resources"
@@ -48,8 +50,7 @@
 	end
 
 	function xcode.isItemResource(project, node)
-
-		local res;
+		local res
 
 		if project and project.xcodebuildresources then
 			if type(project.xcodebuildresources) == "table" then
@@ -107,6 +108,7 @@
 			[".cpp"]       = "sourcecode.cpp.cpp",
 			[".css"]       = "text.css",
 			[".cxx"]       = "sourcecode.cpp.cpp",
+			[".c++"]       = "sourcecode.cpp.cpp",
 			[".S"]         = "sourcecode.asm.asm",
 			[".framework"] = "wrapper.framework",
 			[".gif"]       = "image.gif",
@@ -126,7 +128,7 @@
 			[".bmp"]       = "image.bmp",
 			[".wav"]       = "audio.wav",
 			[".xcassets"]  = "folder.assetcatalog",
-
+			[".swift"]     = "sourcecode.swift",
 		}
 		return types[path.getextension(node.path)] or "text"
 	end
@@ -1018,7 +1020,16 @@
 		end
 	end
 
-
+	function xcode.XCBuildConfiguration_SwiftLanguageVersion(settings, cfg)
+		-- if no swiftversion is provided, don't set swift version
+		-- Projects with swift files but without swift version will refuse 
+		-- to build on Xcode but setting a default SWIFT_VERSION may have 
+		-- unexpected interactions with other systems like cocoapods
+		if cfg.swiftversion then
+			settings['SWIFT_VERSION'] = cfg.swiftversion
+		end
+	end
+	
 	function xcode.XCBuildConfiguration_Project(tr, cfg)
 		local settings = {}
 
@@ -1175,6 +1186,8 @@
 		if cfg.warnings == "Extra" then
 			settings['WARNING_CFLAGS'] = '-Wall -Wextra'
 		end
+
+		xcode.XCBuildConfiguration_SwiftLanguageVersion(settings, cfg)
 
 		overrideSettings(settings, cfg.xcodebuildsettings)
 
